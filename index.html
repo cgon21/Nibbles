@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nibbles</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        /*
+            This project demonstrates shape movement using p5.js.
+            Nibbles the mouse follows the mouse cursor on the canvas.
+            Nibbles can collect cheese scattered on the canvas.
+            When all cheese are collected, Nibbles moves slower and appears full.
+        */
+
+        let backgroundImage;
+        let nibbles;
+        let hungry;
+        let full;
+        let chzImages = [];
+        let chzSizes = [];
+        let w;
+        let h;
+        let nibSize;
+        let nibPos;
+        let chzPos = [];
+        let clicked = true;
+        let chzEaten = 0;
+        let numChz = 5;
+
+        function preload() {
+            backgroundImage = loadImage('tiles.png');
+            full = loadImage('full.png');
+            hungry = loadImage('hungry.png');
+            chzImages.push(loadImage('cheese.png'));
+        }
+
+        function setup() {
+            w = backgroundImage.width / 2;
+            h = backgroundImage.height / 2;
+            nibSize = 100;
+            nibPos = createVector(w / 2, h / 2);
+            nibbles = hungry;
+            createCanvas(w, h);
+            spawnCheese(numChz);
+        }
+
+        function spawnCheese(numCheese) {
+            for (let i = 0; i < numCheese; i++) {
+                let cheeseX = random(0, width / 2);
+                let cheeseY = random(0, height / 2);
+                let cheeseSize = Math.min(Math.max(80, cheeseY), 200);
+                cheeseX += cheeseSize;
+                cheeseY += cheeseSize;
+                chzPos.push(createVector(cheeseX, cheeseY));
+                chzSizes.push(cheeseSize);
+            }
+        }
+
+        function draw() {
+            background(backgroundImage);
+            if (!clicked) {
+                let target = createVector(mouseX, mouseY);
+                let velocity = p5.Vector.sub(target, nibPos);
+
+                if (chzEaten >= numChz) {
+                    velocity.mult(0.005);   // If all cheese are eaten, reduce speed
+                    nibbles = full;         // Change image to full
+                } else {
+                    velocity.mult(0.05);    // Adjust normal speed here
+                    nibbles = hungry;       // Change image to hungry
+                }
+
+                nibPos.add(velocity);
+            }
+
+            // Adjusting nibbles size based on y position
+            let nibblesSize = Math.min(Math.max(60, nibPos.y / 2), 250);
+            image(nibbles, nibPos.x, nibPos.y, nibblesSize, nibblesSize);
+
+            // Check for collision with cheese
+            for (let i = chzPos.length - 1; i >= 0; i--) {
+                let d = dist(nibPos.x, nibPos.y, chzPos[i].x, chzPos[i].y);
+                if (d < nibblesSize / 2) {
+                    chzPos.splice(i, 1);        // Remove cheese
+                    chzSizes.splice(i, 1);      // Remove cheese size
+                    chzEaten++;
+                }
+            }
+
+            // Draw cheese
+            for (let i = 0; i < chzPos.length; i++) {
+                image(chzImages[0], chzPos[i].x, chzPos[i].y, chzSizes[i], chzSizes[i]);
+            }
+        }
+
+        function mouseClicked() {
+            clicked = !clicked;
+        }
+    </script>
+</body>
+
+</html>
