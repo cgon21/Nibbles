@@ -89,13 +89,15 @@
             }
 
             // Adjusting nibbles size based on y position
-            let nibblesSize = Math.min(Math.max(60, nibPos.y / 2), 250);
-            image(nibbles, nibPos.x, nibPos.y, nibblesSize, nibblesSize);
-
+            nibSize = Math.min(Math.max(60, nibPos.y / 2), 250);
+            if (chzEaten >= numChz) {
+                nibSize *= 1.5;
+            }
+            image(nibbles, nibPos.x, nibPos.y, nibSize, nibSize);
             // Check for collision with cheese
             for (let i = chzPos.length - 1; i >= 0; i--) {
                 let d = dist(nibPos.x, nibPos.y, chzPos[i].x, chzPos[i].y);
-                if (d < nibblesSize / 2) {
+                if (d < nibSize / 2) {
                     chzPos.splice(i, 1);        // Remove cheese
                     chzSizes.splice(i, 1);      // Remove cheese size
                     chzEaten++;
